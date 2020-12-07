@@ -9,7 +9,7 @@ module  SweepMethods_Test
     subroutine progonka_test()
         INTEGER :: NI
         REAL,ALLOCATABLE :: A(:),B(:),C(:),D(:), U(:), ANSWER(:)
-        open(logs, file = "test/testlogs.txt")
+        open(logs, file = "test/testlogs.txt", status = "old")
         NI = 4
         allocate(A(1:NI))
         allocate(B(1:NI))
@@ -27,13 +27,13 @@ module  SweepMethods_Test
         call progonka(A,B,C,D,NI,U(1:NI))
 
         if(abs(U(4) - ANSWER(4))>eps) then
-            write(logs,*) 'SweepMethod_Test:progonka_test::Ошибка в последнем слагаемом'
-            write(*,*) 'SweepMethod_Test:progonka_test::failed'
+            write(logs,*) ' SweepMethod_Test:progonka_test::Ошибка в последнем слагаемом'
+            write(*,*) ' SweepMethod_Test:progonka_test::failed'
         else if(maxval(abs(U(1:4) - ANSWER(1:4))) > eps) then
             write(logs,*) 'SweepMethod_Test:progonka_test::Ошибка в ответе'
-            write(*,*) 'SweepMethod_Test:progonka_test::failed'
+            write(*,*) ' SweepMethod_Test:progonka_test::failed'
         else
-            write(*,*) 'SweepMethod_Test:progonka_test::complete'
+            write(*,*) ' SweepMethod_Test:progonka_test::complete'
         end if
         close(logs)
         return

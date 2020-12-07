@@ -1,4 +1,9 @@
-module  PrandtlSolver
+!Модуль для решения задачи обтекания пластины
+!При решении применяется численное решение уравнений Прандтля
+!Входные параметры задаются в resource/Input.txt
+!Решение выводиться в файл resource/data_pt.plt
+
+module  PrandtlSolver_Plate
     use SweepMethods
     IMPLICIT NONE
     contains
@@ -76,7 +81,7 @@ module  PrandtlSolver
         call BoundValue(U_c,V_c,NI,NJ,U0)
         call InitValue(U_n,NI,NJ,U0)
         call BoundValue(U_n,V_c,NI,NJ,U0)
-        write(*,*) U_n(1,1:NJ)
+
     !****************** Solve equation ********************
         do I = 2, NI
             U_c(I,1:NJ) = U_c(I-1,1:NJ)
@@ -134,68 +139,66 @@ module  PrandtlSolver
         Call OutputFields_Node(IO,NI,NJ,X_Node,Y_Node,U_n,V_n,P_n)
         Close(IO)
         return
+
     end subroutine
 
+    SUBROUTINE OutputFields_Cell(IO,NI,NJ,X,Y,U,V,P)
+        IMPLICIT NONE
 
+        INTEGER NI,NJ,IO
+        REAL, DIMENSION(NI,NJ):: X,Y
+        REAL, DIMENSION(0:NI,0:NJ)::U,V,P
 
+        Write(IO,*) 'VARIABLES = "X", "Y", "U", "V", "P"'
+        Write(IO,*) 'ZONE I=',NI,', J=',NJ,', DATAPACKING=BLOCK, VARLOCATION=([3-5]=CELLCENTERED)'
+        Write(IO,'(100E25.16)') X(1:NI,1:NJ)
+        Write(IO,'(100E25.16)') Y(1:NI,1:NJ)
+        Write(IO,'(100E25.16)') U(1:NI-1,1:NJ-1)
+        Write(IO,'(100E25.16)') V(1:NI-1,1:NJ-1)
+        Write(IO,'(100E25.16)') P(1:NI-1,1:NJ-1)
 
-SUBROUTINE OutputFields_Cell(IO,NI,NJ,X,Y,U,V,P)
-    IMPLICIT NONE
+    END SUBROUTINE
 
-    INTEGER NI,NJ,IO
-    REAL, DIMENSION(NI,NJ):: X,Y
-    REAL, DIMENSION(0:NI,0:NJ)::U,V,P
+    SUBROUTINE OutputFields_Node(IO,NI,NJ,X,Y,U,V,P)
+        IMPLICIT NONE
 
-    Write(IO,*) 'VARIABLES = "X", "Y", "U", "V", "P"'
-    Write(IO,*) 'ZONE I=',NI,', J=',NJ,', DATAPACKING=BLOCK, VARLOCATION=([3-5]=CELLCENTERED)'
-    Write(IO,'(100E25.16)') X(1:NI,1:NJ)
-    Write(IO,'(100E25.16)') Y(1:NI,1:NJ)
-    Write(IO,'(100E25.16)') U(1:NI-1,1:NJ-1)
-    Write(IO,'(100E25.16)') V(1:NI-1,1:NJ-1)
-    Write(IO,'(100E25.16)') P(1:NI-1,1:NJ-1)
+        INTEGER NI,NJ,IO
+        REAL, DIMENSION(NI,NJ):: X,Y
+        REAL, DIMENSION(NI,NJ):: U,V,P
 
-END SUBROUTINE
+        Write(IO,*) 'VARIABLES = "X", "Y", "U", "V", "P"'
+        Write(IO,*) 'ZONE I=',NI,', J=',NJ, ', DATAPACKING=BLOCK'
+        Write(IO,'(100E25.16)') X(1:NI,1:NJ)
+        Write(IO,'(100E25.16)') Y(1:NI,1:NJ)
+        Write(IO,'(100E25.16)') U(1:NI,1:NJ)
+        Write(IO,'(100E25.16)') V(1:NI,1:NJ)
+        Write(IO,'(100E25.16)') P(1:NI,1:NJ)
 
-SUBROUTINE OutputFields_Node(IO,NI,NJ,X,Y,U,V,P)
-    IMPLICIT NONE
+    END  SUBROUTINE
 
-    INTEGER NI,NJ,IO
-    REAL, DIMENSION(NI,NJ):: X,Y
-    REAL, DIMENSION(NI,NJ):: U,V,P
+    !----------------------- Set Boundary Condition ------------
+    subroutine BoundValue(U,V,NI,NJ,U0)
+        IMPLICIT NONE
 
-    Write(IO,*) 'VARIABLES = "X", "Y", "U", "V", "P"'
-    Write(IO,*) 'ZONE I=',NI,', J=',NJ, ', DATAPACKING=BLOCK'
-    Write(IO,'(100E25.16)') X(1:NI,1:NJ)
-    Write(IO,'(100E25.16)') Y(1:NI,1:NJ)
-    Write(IO,'(100E25.16)') U(1:NI,1:NJ)
-    Write(IO,'(100E25.16)') V(1:NI,1:NJ)
-    Write(IO,'(100E25.16)') P(1:NI,1:NJ)
+        INTEGER NI,NJ
+        REAL :: U(1:NI,1:NJ), V(1:NI,1:NJ)
+        REAL U0
 
-END  SUBROUTINE
+        U(1:NI,1) = 0.
+        V(1:NI,1) = 0.
+        U(1:NI,NJ) = U0
 
-!----------------------- Set Boundary Condition ------------
-subroutine BoundValue(U,V,NI,NJ,U0)
-    IMPLICIT NONE
+    end subroutine
 
-    INTEGER NI,NJ
-    REAL :: U(1:NI,1:NJ), V(1:NI,1:NJ)
-    REAL U0
+    !---------------Set Initial Values---------------------
+    subroutine InitValue(U,NI,NJ,U0)
+        IMPLICIT NONE
 
-    U(1:NI,1) = 0.
-    V(1:NI,1) = 0.
-    U(1:NI,NJ) = U0
+        Real :: U(1:NI,1:NJ)
+        Real U0
+        INTEGER NI,NJ
 
-end subroutine
+        U(1,1:NJ) = U0
 
-!---------------Set Initial Values---------------------
-subroutine InitValue(U,NI,NJ,U0)
-    IMPLICIT NONE
-
-    Real :: U(1:NI,1:NJ)
-    Real U0
-    INTEGER NI,NJ
-
-    U(1,1:NJ) = U0
-
-end subroutine
+    end subroutine
 End module

@@ -1,8 +1,8 @@
-module SweepMethods
+MODULE SweepMethods
     implicit none
-    contains
+    CONTAINS
 
-    subroutine progonka(A,B,C,D,Im,U)
+    SUBROUTINE progonka(A,B,C,D,Im,U)
       !A*U(i-1)+ B*U(i)+C*U(i+1) = D
       implicit none
       integer::i,Im
@@ -20,6 +20,6 @@ module SweepMethods
           U(i)=F(i)*U(i+1)+G(i)
       enddo
       return
-    end subroutine progonka
+    END SUBROUTINE progonka
 
-end module
+END MODULE
