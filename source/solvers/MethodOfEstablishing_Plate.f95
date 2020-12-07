@@ -183,7 +183,7 @@ MODULE MethodOfEstablishing_Plate
        real, dimension(NI,NJ):: X,Y
        real, dimension(0:NI,0:NJ)::U,V,P
 
-       write(*,*) 'Output data cell (Navier - Stokes) '
+       write(*,*) 'Output data cell (Navier - Stokes)   '
        open(IO,FILE='source/resource/data_ns.plt', status = "replace")
        call OutputFields_Cell(IO,NI,NJ,X,Y,U,V,P)
        close(IO)
